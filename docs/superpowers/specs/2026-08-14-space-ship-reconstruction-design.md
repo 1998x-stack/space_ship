@@ -8,9 +8,10 @@ Goal: Rebuild the existing pygame space-shooter into a clean-architecture game *
 
 The current `space_ship` project is a small, working pygame 2D shooter (ship, lasers,
 monsters, explosions, score, lives, high-score file). Early fixes already applied:
-removed per-frame disk logging, removed float drift in the spawn-rate curve, moved magic
-numbers into `config.py`, replaced `from config import *` with `import config`, and
-narrowed the broad `except` in `score.py`.
+Applied early fixes: removed per-frame disk logging, removed float drift in the spawn-rate
+curve, moved magic numbers into `config.py`, and replaced `from config import *` with
+`import config`. The remaining `score.py` broad-`except` cleanup is carried into the new
+`systems/scoring.py` module.
 
 This reconstruction replaces the flat file structure with a decoupled engine/scene/system/
 entity layout, adds a fixed-timestep loop, and expands the gameplay.
@@ -70,12 +71,13 @@ space_ship/
 
 ## Entities & Combat
 
-- Monsters share a base sprite with **data-driven traits** (speed, hp, fire behavior, score)
+- Waves consist of ~15 enemies each; a boss spawns **every 5 waves**.
+- Monsters share a base class with **data-driven traits** (speed, hp, fire behavior, score)
   sourced from a monster template table:
   - **Drone** — slow, straight down (10 pts)
   - **Strafer/Shooter** — descends, strafes, fires aimed bullets (25 pts)
   - **Kamikaze** — fast, chases player (15 pts)
-  - **Boss** — every N waves, large HP, multi-pattern bullets, big score
+  - **Boss** — large HP, multi-pattern bullets, big score
 - Collision resolution lives in `systems/combat.py` (hit → score / power-up drop / kill),
   kept separate from sprite classes.
 
@@ -84,7 +86,7 @@ space_ship/
 - 8-direction movement; 3 lives; **1.5s invulnerability window** after any hit (blinking feedback).
 - **Weapon levels** 1–3 (single → spread → rapid), upgraded via power-ups.
 - **Power-ups** drop from killed monsters: weapon-up, shield, extra life.
-- **Waves** escalate spawn rate/aggression; **boss** cadence every N waves.
+- **Waves** (of ~15 enemies) escalate spawn rate/aggression; **boss** spawns every 5 waves.
 - **Combo multiplier** from consecutive kills; resets on player hit.
 
 ## Scenes & Flow
