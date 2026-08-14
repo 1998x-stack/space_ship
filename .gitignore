@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+space_ship.log
+high_score.txt
+.worktrees/
