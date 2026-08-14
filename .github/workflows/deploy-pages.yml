@@ -1,0 +1,68 @@
+name: Deploy to GitHub Pages
+
+# Builds the pygame game to WebAssembly (pygbag) and publishes it, together with
+# the static landing page (index.html), to GitHub Pages.
+#
+# PREREQUISITE: In the repo settings (Settings -> Pages), set:
+#   Source = "GitHub Actions"
+# Then push to `main` (or run this workflow manually).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install build dependencies
+        run: pip install pygame pygbag
+
+      - name: Build the browser game (pygbag)
+        run: pygbag --build --app_name space_ship main.py
+
+      - name: Assemble static site
+        run: |
+          set -e
+          # pygbag emits the web build into build/web/
+          test -d build/web && echo "found build/web"
+          mkdir -p site/play
+          cp -r build/web/. site/play/
+          cp index.html site/index.html
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
