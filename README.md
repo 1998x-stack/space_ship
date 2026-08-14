@@ -1,83 +1,125 @@
-# Space Ship
+# 🚀 Space Ship
 
-A 2D space shooter rebuilt as a clean, fixed-timestep pygame engine. You pilot a ship,
-upgrade your weapon, and survive escalating enemy waves and bosses while chasing the
-highest score.
+> A fast, open-source 2D space shooter. Pilot your ship through escalating attack waves,
+> chain kills to multiply your score, and bring down the boss every fifth wave.
 
+[![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Pygame](https://img.shields.io/badge/Pygame-2.x-1f9c3b?logo=python&logoColor=white)](https://www.pygame.org/)
+[![License](https://img.shields.io/github/license/1998x-stack/space_ship)](LICENSE)
+[![Play in-browser](https://img.shields.io/badge/Play%20in%20browser-WebAssembly-39d6ff)](#-play-in-your-browser)
+[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/1998x-stack/space_ship/deploy-pages.yml?label=Pages%20build)](https://github.com/1998x-stack/space_ship/actions)
 
-## Features
+---
 
-- **Fixed-timestep engine** — deterministic game logic independent of render FPS
-- **Scene system** — start / play / pause / game-over flow via a scene stack
-- **3 enemy types** — Drones, Strafers (fire bullets), and Kamikaze chasers
-- **Boss** every 5 waves with a large HP bar
-- **Weapon upgrades** — single → spread fire, upgraded via pickups
-- **Power-ups** — weapon upgrade, shield, and extra life drops
-- **Combo scoring** — chain kills for a score multiplier
-- 8-direction ship movement with invulnerability window after being hit
-- Persistent high score
+## ▶ Play in your browser
 
-## Requirements
+The game runs in your browser via WebAssembly (built with [pygbag](https://pypi.org/project/pygbag/)
+and served by GitHub Pages):
 
-- Python 3.9+
-- pygame 2.x
+👉 **https://1998x-stack.github.io/space_ship/**
 
-## Installation
+> The in-browser build is compiled by a GitHub Actions workflow. If the page is empty on
+> first load, give the CI a moment and reload.
 
-```bash
-pip install -r requirements.txt
+---
+
+## ✨ Features
+
+- **Fixed-timestep engine** — deterministic, frame-rate-independent gameplay
+- **Scene system** — start → play → pause ⇄ play → game-over → restart
+- **3 enemy types** — Drones, Strafers (fire aimed bullets), and Kamikaze chasers
+- **Boss fights** — a high-HP boss appears **every 5 waves**
+- **Weapon upgrades** — single → 3-way spread, leveled up via pickups
+- **Power-ups** — weapon upgrade, shield (extra life), and extra-life drops
+- **Combo scoring** — chain kills for a score multiplier (up to **x4**)
+- **Invulnerability window** after each hit, with 3 lives
+- **Persistent high score** saved to `high_score.txt`
+
+## 🖥 Requirements
+
+- Python **3.9+**
+- [pygame](https://www.pygame.org/) **2.x**
+
+## 📦 Installation & Run
+
+With a web browser (no install):
+```
+https://1998x-stack.github.io/space_ship/
 ```
 
-## How to Run
-
+Locally:
 ```bash
+git clone https://github.com/1998x-stack/space_ship.git
+cd space_ship
+pip install -r requirements.txt
 python main.py
 ```
 
-## Controls
+## 🎮 Controls
 
-| Action            | Key     |
-|-------------------|---------|
-| Move              | Arrow keys (4- or 8-direction) |
-| Fire              | Space    |
-| Pause / Unpause   | P        |
+| Action | Key |
+|--------|-----|
+| Move (4- or 8-direction) | Arrow keys |
+| Fire | `Space` |
+| Pause / Resume | `P` |
 
-## How to Play
+## 📖 How to play
 
-- Destroy enemies to score points; consecutive kills raise your multiplier (up to x4).
-- Killed enemies occasionally drop power-ups: **Weapon** (upgrade fire pattern),
-  **Shield** (extra life), **Life**.
-- Avoid enemy body contact and their bullets — you have only 3 lives, with a short
+- Destroy enemies to score points. **Consecutive kills** raise your score multiplier.
+- Destroyed enemies sometimes drop a **power-up**: ⬆ weapon, 🛡 shield, ❤ extra life.
+- Avoid enemy **body contact** and their **bullets** — you only have 3 lives, with a short
   invincibility window after each hit.
-- Every wave of ~15 enemies escalates difficulty; a **boss** appears every 5 waves.
-- The game ends when you run out of lives. Your best score is saved to `high_score.txt`.
+- Each **wave** (~15 enemies) escalates difficulty; a **boss** appears every 5 waves.
+- The run ends when you run out of lives. Your best score is saved and shown on the
+  start and game-over screens.
 
-## Project Structure
+## 🗂 Project structure
 
 ```
-main.py            entry point
+main.py            async entry point (desktop & in-browser)
 game.py            fixed-timestep engine + game loop
-scene.py           Scene base + SceneManager (stack)
+scene.py           Scene base + SceneManager
 settings.py        validated GameSettings dataclass
 assets.py          AssetManager (cached images/sounds with fallbacks)
 hud.py             HUD rendering
 entities/          sprites (ship, weapons, bullets, monsters, boss, power-ups, explosions)
 systems/           logic (waves, combat, scoring)
 scenes/            start, gameplay, pause, game-over
+index.html         GitHub Pages landing page
+.github/workflows  CI: builds the in-browser game + deploys Pages
 tests/             headless pytest suite
 ```
 
-## Configuration
+## ⚙️ Configuration
 
-Tune gameplay in `settings.py` (speeds, lives, wave size, boss cadence, power-up drop
-chance, etc.).
+Tune everything in [`settings.py`](settings.py) — speeds, lives, wave size, boss cadence,
+power-up drop chance, window size, and more. All values are validated at startup.
 
-## Tests
+## 🧪 Testing
 
+Run the headless test suite (no display required):
 ```bash
 python -m pytest -q
 ```
 
-## License
+## 🌐 Deploying the in-browser version
 
-MIT — see `LICENSE`.
+The in-browser build is generated by `.github/workflows/deploy-pages.yml` (pygbag →
+WebAssembly → GitHub Pages). To enable it once:
+
+1. In the repo **Settings → Pages**, set **Source = GitHub Actions**.
+2. Push to `main` (or run the workflow manually).
+3. The live game appears at `https://<user>.github.io/<repo>/`.
+
+## 🤝 Contributing
+
+1. Fork the repository.
+2. Create a feature branch: `git checkout -b feature-name`
+3. Commit your changes and push.
+4. Open a pull request.
+
+Bug reports and feature ideas are welcome via GitHub Issues.
+
+## 📄 License
+
+[MIT](LICENSE). Built with Python & [pygame](https://www.pygame.org/).

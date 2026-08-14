@@ -21,25 +21,40 @@ class Game:
         self.clock = pygame.time.Clock()
         self.manager = SceneManager()
         self._running = False
+        self._acc = 0.0
 
-    def run(self, initial_scene):
+    def start(self, initial_scene):
+        """Set the initial scene and begin the (possibly async) game loop."""
         self.manager.replace(initial_scene)
         self._running = True
-        acc = 0.0
-        while self._running and self.manager.active and not self.manager.should_quit:
-            frame_dt = self.clock.tick(self.settings.fps) / 1000.0
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.quit()
-                self.manager.handle_event(event)
-            acc = advance_accumulator(acc, frame_dt)
-            steps = int(acc / FIXED_DT)
-            while steps:
-                self.manager.update(FIXED_DT)
-                acc -= FIXED_DT
-                steps -= 1
-            self.manager.draw(self.screen)
-            pygame.display.flip()
+        self._acc = 0.0
+
+    def frame(self):
+        """Advance exactly one fixed-timestep frame. Returns False when the loop
+        should stop. Step is non-blocking so it can be driven synchronously (desktop)
+        or awaited in an async loop (browser/pybag)."""
+        if not (self._running and self.manager.active and not self.manager.should_quit):
+            return False
+        frame_dt = self.clock.tick(self.settings.fps) / 1000.0
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.quit()
+            self.manager.handle_event(event)
+        self._acc = advance_accumulator(self._acc, frame_dt)
+        steps = int(self._acc / FIXED_DT)
+        while steps:
+            self.manager.update(FIXED_DT)
+            self._acc -= FIXED_DT
+            steps -= 1
+        self.manager.draw(self.screen)
+        pygame.display.flip()
+        return True
+
+    def run(self, initial_scene):
+        """Synchronous convenience loop (desktop CLI)."""
+        self.start(initial_scene)
+        while self.frame():
+            pass
         pygame.quit()
 
     def quit(self):

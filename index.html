@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Space Ship — Play the Arcade Shooter in Your Browser</title>
+<meta name="description" content="Space Ship is a free, open-source 2D space shooter. Upgrade your weapon, dodge kamikaze drones, and survive the boss waves. Play in your browser or run it locally." />
+<style>
+  :root{
+    --bg:#070a14; --bg2:#0c1120; --card:#111a2e; --line:#1e2a47;
+    --text:#e8eefc; --muted:#8fa0c4; --accent:#39d6ff; --accent2:#ff5c8a;
+    --ok:#2bd97c; --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 600px at 20% -10%,#12203f 0%,var(--bg) 45%) var(--bg);
+    color:var(--text); line-height:1.6;
+  }
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 22px}
+  header.nav{
+    position:sticky; top:0; z-index:20; backdrop-filter:blur(8px);
+    background:rgba(7,7,20,.7); border-bottom:1px solid var(--line);
+  }
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; height:60px}
+  .brand{font-weight:700; letter-spacing:.5px; font-size:1.05rem}
+  .brand span{color:var(--accent)}
+  .nav-links a{margin-left:22px; color:var(--muted); font-size:.92rem}
+  .nav-links a:hover{color:var(--text)}
+
+  .hero{text-align:center; padding:70px 0 40px}
+  .hero .tag{display:inline-block; font-size:.8rem; letter-spacing:2px; text-transform:uppercase;
+    color:var(--accent); border:1px solid var(--line); padding:6px 14px; border-radius:999px; margin-bottom:22px}
+  .hero h1{font-size:3rem; font-weight:800; letter-spacing:1px}
+  .hero h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .hero p{max-width:640px; margin:16px auto 0; color:var(--muted); font-size:1.1rem}
+  .cta{display:flex; gap:14px; justify-content:center; margin-top:30px; flex-wrap:wrap}
+  .btn{display:inline-block; padding:13px 26px; border-radius:999px; font-weight:700; border:1px solid transparent}
+  .btn.play{background:linear-gradient(90deg,var(--accent),var(--accent2)); color:#071019}
+  .btn.gh{background:transparent; color:var(--text); border-color:var(--line)}
+  .btn.gh:hover{border-color:var(--accent)}
+
+  section{padding:44px 0}
+  .play-frame{
+    background:var(--bg2); border:1px solid var(--line); border-radius:var(--radius);
+    overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.5); margin:10px auto;
+  }
+  .play-frame iframe{display:block; width:100%; height:520px; border:0; background:#000}
+  .hint{text-align:center; font-size:.8rem; color:var(--muted); margin-top:10px}
+
+  h2.sec{font-size:1.7rem; margin-bottom:6px}
+  .lead{color:var(--muted); margin-bottom:26px}
+  .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px}
+  .card{background:var(--bg2); border:1px solid var(--line); border-radius:var(--radius); padding:22px}
+  .card .ico{font-size:1.8rem}
+  .card h3{font-size:1.05rem; margin:10px 0 6px}
+  .card p{color:var(--muted); font-size:.9rem}
+
+  .shots{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px}
+  .shot{background:var(--bg2); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden}
+  .shot img{width:100%; display:block; image-rendering:pixelated}
+  .shot figcaption{padding:10px 14px; font-size:.8rem; color:var(--muted)}
+
+  table.kbd{width:100%; border-collapse:collapse; margin-top:8px}
+  table.kbd td,table.kbd th{border:1px solid var(--line); padding:10px 14px; text-align:left; font-size:.9rem}
+  table.kbd th{background:var(--bg2)}
+  table.kbd code{background:#0b1224; padding:2px 8px; border-radius:6px; border:1px solid var(--line)}
+
+  pre.code{background:#0a0e1c; border:1px solid var(--line); border-radius:var(--radius); padding:18px;
+    overflow-x:auto; font-size:.85rem; margin-top:14px}
+  footer{border-top:1px solid var(--line); margin-top:40px; padding:26px 0; text-align:center; color:var(--muted); font-size:.85rem}
+  @media(max-width:640px){ .hero h1{font-size:2.1rem} .play-frame iframe{height:400px} }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <div class="brand">&#128640; Space<span>Ship</span></div>
+    <nav class="nav-links">
+      <a href="#play">Play</a>
+      <a href="#features">Features</a>
+      <a href="#controls">Controls</a>
+      <a href="#local">Run locally</a>
+      <a href="https://github.com/1998x-stack/space_ship" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="tag">Open-Source · Python · Pygame</div>
+    <h1>Space <span>Ship</span></h1>
+    <p>Pilot a ship through escalating enemy waves. Chain kills to boost your score
+       multiplier, grab weapon upgrades, and take down the boss every fifth wave.</p>
+    <div class="cta">
+      <a class="btn play" href="#play">&#9654; Play now</a>
+      <a class="btn gh" href="https://github.com/1998x-stack/space_ship" target="_blank" rel="noopener">View source</a>
+    </div>
+  </div>
+</div>
+
+<section id="play">
+  <div class="wrap">
+    <h2 class="sec">Play in your browser</h2>
+    <p class="lead">The game runs in your browser via WebAssembly (pygbag). Might take a few
+       seconds to load. Press <code>P</code> to pause and the arrow keys to move.</p>
+    <div class="play-frame">
+      <iframe src="/play/" title="Space Ship — playable in browser" loading="eager" allow="autoplay"></iframe>
+    </div>
+    <p class="hint">Not loading? The WebAssembly build is generated by GitHub Actions — give it a
+       moment on first visit, or <a href="#local">run it locally</a>.</p>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2 class="sec">Features</h2>
+    <p class="lead">A clean, deterministic engine under the hood, and a classic arcade feel on top.</p>
+    <div class="cards">
+      <div class="card"><div class="ico">&#128737;</div><h3>3 enemy types</h3><p>Drones drift down, strafers fire aimed bullets, and kamikazes hunt you down.</p></div>
+      <div class="card"><div class="ico">&#128274;</div><h3>Boss waves</h3><p>A tanky boss appears every 5 waves to test your aim and your dodging.</p></div>
+      <div class="card"><div class="ico">&#128293;</div><h3>Weapon upgrades</h3><p>Collect pickups to go from a single shot to a three-way spread.</p></div>
+      <div class="card"><div class="ico">&#11088;</div><h3>Combo scoring</h3><p>Chain consecutive kills for a score multiplier of up to x4.</p></div>
+      <div class="card"><div class="ico">&#10024;</div><h3>Power-ups</h3><p>Weapon upgrades, shields, and extra lives drop from destroyed enemies.</p></div>
+      <div class="card"><div class="ico">&#9881;&#65039;</div><h3>Clean engine</h3><p>Fixed-timestep loop, scene manager, and validated settings — fully tested.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="screenshots">
+  <div class="wrap">
+    <h2 class="sec">In-game</h2>
+    <div class="shots">
+      <figure class="shot"><img src="assets/images/monster.png" alt="Enemy sprite"><figcaption>Enemies flood from the top of the screen.</figcaption></figure>
+      <figure class="shot"><img src="assets/images/ship.png" alt="Player ship sprite"><figcaption>Your ship — keep it dodging.</figcaption></figure>
+      <figure class="shot"><img src="assets/images/background.png" alt="Background art"><figcaption>Deep-space backdrop.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="controls">
+  <div class="wrap">
+    <h2 class="sec">Controls</h2>
+    <table class="kbd">
+      <tr><th>Action</th><th>Key</th></tr>
+      <tr><td>Move (4- or 8-direction)</td><td><code>&larr;</code> <code>&uarr;</code> <code>&darr;</code> <code>&rarr;</code></td></tr>
+      <tr><td>Fire</td><td><code>Space</code></td></tr>
+      <tr><td>Pause / Resume</td><td><code>P</code></td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="local">
+  <div class="wrap">
+    <h2 class="sec">Run it locally</h2>
+    <p class="lead">Prefer the desktop build? You need Python 3.9+.</p>
+<pre class="code">git clone https://github.com/1998x-stack/space_ship.git
+cd space_ship
+pip install -r requirements.txt
+python main.py</pre>
+  </div>
+</section>
+
+<footer class="wrap">
+  <p><strong>Space Ship</strong> &mdash; open source under the MIT License. Built with Python &amp; pygame.</p>
+</footer>
+
+</body>
+</html>

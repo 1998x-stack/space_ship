@@ -26,5 +26,10 @@ class Scoring:
             return 0
 
     def save_high_score(self):
-        with open(self.path, "w") as f:
-            f.write(str(self.score))
+        try:
+            with open(self.path, "w") as f:
+                f.write(str(self.score))
+        except (OSError, ValueError):
+            # Best-effort persistence: in browser (pygbag) the virtual filesystem
+            # may be read-only, in which case the run simply doesn't persist.
+            pass
