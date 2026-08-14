@@ -3,171 +3,190 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Space Ship — Play the Arcade Shooter in Your Browser</title>
-<meta name="description" content="Space Ship is a free, open-source 2D space shooter. Upgrade your weapon, dodge kamikaze drones, and survive the boss waves. Play in your browser or run it locally." />
+<title>SPACE·SHIP — play the arcade shooter in your browser</title>
+<meta name="description" content="SPACE SHIP is an open-source 2D arcade shooter. Dodge the green, chain the silver, and beat the boss every fifth wave — play it in your browser or run it locally." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#070a14; --bg2:#0c1120; --card:#111a2e; --line:#1e2a47;
-    --text:#e8eefc; --muted:#8fa0c4; --accent:#39d6ff; --accent2:#ff5c8a;
-    --ok:#2bd97c; --radius:14px;
+    --ink:#0c0812;          /* abyss, warmed */
+    --ink2:#120d1c;         /* raised panel */
+    --line:#2a2238;         /* hairlines */
+    --volt:#a0e050;         /* enemy highlight */
+    --steel:#e6e6e6;        /* ship metal / primary text */
+    --slate:#8fa6a6;        /* teal-grays / muted */
+    --mono:"ui-monospace","SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;
   }
   *{box-sizing:border-box; margin:0; padding:0}
   html{scroll-behavior:smooth}
   body{
-    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
-    background:radial-gradient(1200px 600px at 20% -10%,#12203f 0%,var(--bg) 45%) var(--bg);
-    color:var(--text); line-height:1.6;
+    font-family:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:
+      radial-gradient(900px 480px at 12% -8%, #1a1330 0%, transparent 55%),
+      radial-gradient(700px 500px at 95% 8%, #0f1a16 0%, transparent 50%),
+      var(--ink);
+    color:var(--steel); line-height:1.6;
+    -webkit-font-smoothing:antialiased;
   }
-  a{color:var(--accent); text-decoration:none}
-  a:hover{text-decoration:underline}
-  .wrap{max-width:1080px; margin:0 auto; padding:0 22px}
-  header.nav{
-    position:sticky; top:0; z-index:20; backdrop-filter:blur(8px);
-    background:rgba(7,7,20,.7); border-bottom:1px solid var(--line);
+  a{color:inherit; text-decoration:none}
+  :focus-visible{outline:2px solid var(--volt); outline-offset:2px}
+  .wrap{max-width:1060px; margin:0 auto; padding:0 24px}
+
+  /* ---------- top bar ---------- */
+  header{position:sticky; top:0; z-index:20; background:rgba(10,7,18,.82); backdrop-filter:blur(10px); border-bottom:1px solid var(--line)}
+  .bar{display:flex; align-items:center; justify-content:space-between; min-height:64px}
+  .wordmark{
+    font-family:"Michroma",sans-serif; letter-spacing:.32em; font-size:.86rem;
+    display:inline-flex; align-items:center; gap:.55em;
   }
-  .nav-inner{display:flex; align-items:center; justify-content:space-between; height:60px}
-  .brand{font-weight:700; letter-spacing:.5px; font-size:1.05rem}
-  .brand span{color:var(--accent)}
-  .nav-links a{margin-left:22px; color:var(--muted); font-size:.92rem}
-  .nav-links a:hover{color:var(--text)}
-
-  .hero{text-align:center; padding:70px 0 40px}
-  .hero .tag{display:inline-block; font-size:.8rem; letter-spacing:2px; text-transform:uppercase;
-    color:var(--accent); border:1px solid var(--line); padding:6px 14px; border-radius:999px; margin-bottom:22px}
-  .hero h1{font-size:3rem; font-weight:800; letter-spacing:1px}
-  .hero h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent}
-  .hero p{max-width:640px; margin:16px auto 0; color:var(--muted); font-size:1.1rem}
-  .cta{display:flex; gap:14px; justify-content:center; margin-top:30px; flex-wrap:wrap}
-  .btn{display:inline-block; padding:13px 26px; border-radius:999px; font-weight:700; border:1px solid transparent}
-  .btn.play{background:linear-gradient(90deg,var(--accent),var(--accent2)); color:#071019}
-  .btn.gh{background:transparent; color:var(--text); border-color:var(--line)}
-  .btn.gh:hover{border-color:var(--accent)}
-
-  section{padding:44px 0}
-  .play-frame{
-    background:var(--bg2); border:1px solid var(--line); border-radius:var(--radius);
-    overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.5); margin:10px auto;
+  .wordmark .o{position:relative; width:1.1em; height:1.1em; display:inline-block}
+  .wordmark .o svg{width:100%; height:100%; display:block}
+  nav a{
+    font-family:var(--mono); font-size:.72rem; letter-spacing:.12em; color:var(--slate);
+    text-transform:uppercase; margin-left:26px;
   }
-  .play-frame iframe{display:block; width:100%; height:520px; border:0; background:#000}
-  .hint{text-align:center; font-size:.8rem; color:var(--muted); margin-top:10px}
+  nav a:hover{color:var(--volt)}
 
-  h2.sec{font-size:1.7rem; margin-bottom:6px}
-  .lead{color:var(--muted); margin-bottom:26px}
-  .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px}
-  .card{background:var(--bg2); border:1px solid var(--line); border-radius:var(--radius); padding:22px}
-  .card .ico{font-size:1.8rem}
-  .card h3{font-size:1.05rem; margin:10px 0 6px}
-  .card p{color:var(--muted); font-size:.9rem}
+  main{padding:34px 0 40px}
 
-  .shots{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px}
-  .shot{background:var(--bg2); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden}
-  .shot img{width:100%; display:block; image-rendering:pixelated}
-  .shot figcaption{padding:10px 14px; font-size:.8rem; color:var(--muted)}
+  /* ---------- hero: the game is the subject ---------- */
+  .deck{border:1px solid var(--line); background:var(--ink2); position:relative; box-shadow:0 30px 80px rgba(0,0,0,.55)}
+  .deck .ret{position:absolute; width:26px; height:26px; color:var(--volt); opacity:.85}
+  .deck .ret.tl{top:-13px; left:-13px; border-top:2px solid; border-left:2px solid}
+  .deck .ret.tr{top:-13px; right:-13px; border-top:2px solid; border-right:2px solid}
+  .deck .ret.bl{bottom:-13px; left:-13px; border-bottom:2px solid; border-left:2px solid}
+  .deck .ret.br{bottom:-13px; right:-13px; border-bottom:2px solid; border-right:2px solid}
+  .deck .ret.tl::after,.deck .ret.tr::after,.deck .ret.bl::after,.deck .ret.br::after{content:""; position:absolute; width:6px; height:6px; background:var(--volt)}
+  .deck .ret.tl::after{top:3px; left:-3px}
+  .deck .ret.tr::after{top:3px; right:-3px}
+  .deck .ret.bl::after{bottom:3px; left:-3px}
+  .deck .ret.br::after{bottom:3px; right:-3px}
+  .glass{background:#000; position:relative; padding:2px}
+  .glass iframe{display:block; width:100%; height:520px; border:0}
+  @media(max-width:640px){ .glass iframe{height:400px} }
 
-  table.kbd{width:100%; border-collapse:collapse; margin-top:8px}
-  table.kbd td,table.kbd th{border:1px solid var(--line); padding:10px 14px; text-align:left; font-size:.9rem}
-  table.kbd th{background:var(--bg2)}
-  table.kbd code{background:#0b1224; padding:2px 8px; border-radius:6px; border:1px solid var(--line)}
+  .telemetry{display:flex; align-items:center; gap:18px; flex-wrap:wrap; padding:12px 16px; border-bottom:1px solid var(--line); font-family:var(--mono); font-size:.72rem; letter-spacing:.12em}
+  .telemetry .live{display:inline-flex; align-items:center; gap:7px; color:var(--volt)}
+  .telemetry .live b{width:8px; height:8px; border-radius:50%; background:var(--volt); animation:pulse 2.4s infinite}
+  .telemetry .id{color:var(--slate)}
+  .telemetry .data{color:var(--steel); text-transform:uppercase}
+  .telemetry .sep{color:var(--line)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
 
-  pre.code{background:#0a0e1c; border:1px solid var(--line); border-radius:var(--radius); padding:18px;
-    overflow-x:auto; font-size:.85rem; margin-top:14px}
-  footer{border-top:1px solid var(--line); margin-top:40px; padding:26px 0; text-align:center; color:var(--muted); font-size:.85rem}
-  @media(max-width:640px){ .hero h1{font-size:2.1rem} .play-frame iframe{height:400px} }
+  .tagline{text-align:center; margin:34px auto 0; max-width:640px; padding:0 12px}
+  .tagline h1{font-family:var(--mono); font-size:.78rem; letter-spacing:.34em; text-transform:uppercase; color:var(--volt); margin-bottom:14px; font-weight:400}
+  .tagline p{font-size:1.12rem; color:var(--steel)}
+  .tagline p .s{color:var(--slate)}
+  .playrow{display:flex; gap:14px; justify-content:center; margin-top:26px; flex-wrap:wrap}
+  .btn{font:700 .82rem var(--mono); letter-spacing:.14em; text-transform:uppercase; padding:13px 30px; border-radius:0}
+  .btn-play{background:var(--volt); color:#0c0812}
+  .btn-play:hover{filter:brightness(1.08)}
+  .btn-gh{border:1px solid var(--line); color:var(--steel)}
+  .btn-gh:hover{border-color:var(--volt); color:var(--volt)}
+
+  /* ---------- spec: a manifest, not a numbered list ---------- */
+  .spec{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); border:1px solid var(--line); border-top:0; margin-top:44px}
+  .spec .cell{padding:20px 22px; border:0; border-top:1px solid var(--line)}
+  .spec .cell h3{font-family:var(--mono); font-size:.68rem; letter-spacing:.24em; color:var(--slate); font-weight:400; margin-bottom:10px; text-transform:uppercase}
+  .spec .cell p{font-size:.95rem; color:var(--steel)}
+
+  /* ---------- controls & local ---------- */
+  .panel{margin-top:52px}
+  .panel h2{font-family:var(--mono); font-size:.72rem; letter-spacing:.3em; color:var(--volt); font-weight:400; text-transform:uppercase; margin-bottom:18px}
+  table.k{width:100%; border-collapse:collapse}
+  table.k tr+tr td{border-top:1px solid var(--line)}
+  table.k td{padding:11px 4px; font-size:.93rem}
+  table.k td:nth-child(1){color:var(--slate)}
+  table.k code{font-family:var(--mono); font-size:.82rem; color:var(--volt); border:1px solid var(--line); padding:2px 9px; background:var(--ink2)}
+  pre{font-family:var(--mono); font-size:.82rem; background:var(--ink2); border:1px solid var(--line); padding:18px 20px; overflow-x:auto; color:var(--slate); margin-top:6px}
+  pre b{color:var(--steel); font-weight:400}
+
+  footer{margin-top:64px; border-top:1px solid var(--line); padding:24px 0 34px; font-family:var(--mono); font-size:.7rem; letter-spacing:.12em; color:var(--slate); text-align:center}
+
+  @media(max-width:700px){ .spec .cell:first-child{border-top:0} }
+  @media (prefers-reduced-motion: reduce){
+    .telemetry .live b{animation:none}
+    html{scroll-behavior:auto}
+  }
 </style>
 </head>
 <body>
 
-<header class="nav">
-  <div class="wrap nav-inner">
-    <div class="brand">&#128640; Space<span>Ship</span></div>
-    <nav class="nav-links">
+<header>
+  <div class="wrap bar">
+    <a class="wordmark" href="#" aria-label="Space Ship home">
+      SPACE<span class="o" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M12 0v5M12 19v5M0 12h5M19 12h5" stroke="currentColor" stroke-width="1.5"/></svg>
+      </span>SHIP
+    </a>
+    <nav>
       <a href="#play">Play</a>
-      <a href="#features">Features</a>
-      <a href="#controls">Controls</a>
-      <a href="#local">Run locally</a>
-      <a href="https://github.com/1998x-stack/space_ship" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/1998x-stack/space_ship" target="_blank" rel="noopener">Source</a>
     </nav>
   </div>
 </header>
 
-<div class="hero">
-  <div class="wrap">
-    <div class="tag">Open-Source · Python · Pygame</div>
-    <h1>Space <span>Ship</span></h1>
-    <p>Pilot a ship through escalating enemy waves. Chain kills to boost your score
-       multiplier, grab weapon upgrades, and take down the boss every fifth wave.</p>
-    <div class="cta">
-      <a class="btn play" href="#play">&#9654; Play now</a>
-      <a class="btn gh" href="https://github.com/1998x-stack/space_ship" target="_blank" rel="noopener">View source</a>
+<main id="top">
+  <section id="play" class="wrap">
+    <div class="deck">
+      <span class="ret tl"></span><span class="ret tr"></span><span class="ret bl"></span><span class="ret br"></span>
+      <div class="glass">
+        <iframe src="/play/" title="Play Space Ship in your browser" allow="autoplay"></iframe>
+      </div>
+      <div class="telemetry">
+        <span class="live"><b></b>LIVE</span>
+        <span class="sep">/</span>
+        <span class="id">CHN</span><span class="data">1&#215; &#8594; 3&#215; SPREAD</span>
+        <span class="sep">/</span>
+        <span class="id">COMBO</span><span class="data">&#215;4 MAX</span>
+        <span class="sep">/</span>
+        <span class="id">BOSS</span><span class="data">EVERY WAVE 5</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap tagline">
+    <h1>Space&middot;Ship</h1>
+    <p>An open-source 2D arcade shooter. <span class="s">Dodge the green, chain the silver &mdash; and bring down the boss on every fifth wave.</span></p>
+    <div class="playrow">
+      <a class="btn btn-play" href="#play">Play now</a>
+      <a class="btn btn-gh" href="#local">Run locally</a>
     </div>
   </div>
-</div>
 
-<section id="play">
-  <div class="wrap">
-    <h2 class="sec">Play in your browser</h2>
-    <p class="lead">The game runs in your browser via WebAssembly (pygbag). Might take a few
-       seconds to load. Press <code>P</code> to pause and the arrow keys to move.</p>
-    <div class="play-frame">
-      <iframe src="/play/" title="Space Ship — playable in browser" loading="eager" allow="autoplay"></iframe>
+  <section id="spex" class="wrap">
+    <div class="spec">
+      <div class="cell"><h3>Enemies</h3><p>Drones &middot; strafers &middot; kamikaze</p></div>
+      <div class="cell"><h3>Weapons</h3><p>Single &rarr; 3-way spread</p></div>
+      <div class="cell"><h3>Scoring</h3><p>Chain kills up to &times;4</p></div>
+      <div class="cell"><h3>Power-ups</h3><p>Weapon &middot; shield &middot; life</p></div>
+      <div class="cell"><h3>Engine</h3><p>Fixed-timestep, tested</p></div>
+      <div class="cell"><h3>Built with</h3><p>Python &middot; pygame</p></div>
     </div>
-    <p class="hint">Not loading? The WebAssembly build is generated by GitHub Actions — give it a
-       moment on first visit, or <a href="#local">run it locally</a>.</p>
-  </div>
-</section>
+  </section>
 
-<section id="features">
-  <div class="wrap">
-    <h2 class="sec">Features</h2>
-    <p class="lead">A clean, deterministic engine under the hood, and a classic arcade feel on top.</p>
-    <div class="cards">
-      <div class="card"><div class="ico">&#128737;</div><h3>3 enemy types</h3><p>Drones drift down, strafers fire aimed bullets, and kamikazes hunt you down.</p></div>
-      <div class="card"><div class="ico">&#128274;</div><h3>Boss waves</h3><p>A tanky boss appears every 5 waves to test your aim and your dodging.</p></div>
-      <div class="card"><div class="ico">&#128293;</div><h3>Weapon upgrades</h3><p>Collect pickups to go from a single shot to a three-way spread.</p></div>
-      <div class="card"><div class="ico">&#11088;</div><h3>Combo scoring</h3><p>Chain consecutive kills for a score multiplier of up to x4.</p></div>
-      <div class="card"><div class="ico">&#10024;</div><h3>Power-ups</h3><p>Weapon upgrades, shields, and extra lives drop from destroyed enemies.</p></div>
-      <div class="card"><div class="ico">&#9881;&#65039;</div><h3>Clean engine</h3><p>Fixed-timestep loop, scene manager, and validated settings — fully tested.</p></div>
-    </div>
-  </div>
-</section>
-
-<section id="screenshots">
-  <div class="wrap">
-    <h2 class="sec">In-game</h2>
-    <div class="shots">
-      <figure class="shot"><img src="assets/images/monster.png" alt="Enemy sprite"><figcaption>Enemies flood from the top of the screen.</figcaption></figure>
-      <figure class="shot"><img src="assets/images/ship.png" alt="Player ship sprite"><figcaption>Your ship — keep it dodging.</figcaption></figure>
-      <figure class="shot"><img src="assets/images/background.png" alt="Background art"><figcaption>Deep-space backdrop.</figcaption></figure>
-    </div>
-  </div>
-</section>
-
-<section id="controls">
-  <div class="wrap">
-    <h2 class="sec">Controls</h2>
-    <table class="kbd">
-      <tr><th>Action</th><th>Key</th></tr>
-      <tr><td>Move (4- or 8-direction)</td><td><code>&larr;</code> <code>&uarr;</code> <code>&darr;</code> <code>&rarr;</code></td></tr>
+  <section id="controls" class="wrap panel">
+    <h2>Controls</h2>
+    <table class="k">
+      <tr><td>Move &mdash; 4- or 8-direction</td><td><code>&uarr; &larr; &darr; &rarr;</code></td></tr>
       <tr><td>Fire</td><td><code>Space</code></td></tr>
-      <tr><td>Pause / Resume</td><td><code>P</code></td></tr>
+      <tr><td>Pause / resume</td><td><code>P</code></td></tr>
     </table>
-  </div>
-</section>
+  </section>
 
-<section id="local">
-  <div class="wrap">
-    <h2 class="sec">Run it locally</h2>
-    <p class="lead">Prefer the desktop build? You need Python 3.9+.</p>
-<pre class="code">git clone https://github.com/1998x-stack/space_ship.git
-cd space_ship
-pip install -r requirements.txt
-python main.py</pre>
-  </div>
-</section>
+  <section id="local" class="wrap panel">
+    <h2>Run locally</h2>
+    <pre><b>$</b> git clone https://github.com/1998x-stack/space_ship.git
+<b>$</b> cd space_ship
+<b>$</b> pip install -r requirements.txt
+<b>$</b> python main.py</pre>
+  </section>
 
-<footer class="wrap">
-  <p><strong>Space Ship</strong> &mdash; open source under the MIT License. Built with Python &amp; pygame.</p>
-</footer>
+  <footer class="wrap">
+    SPACE&middot;SHIP &middot; OPEN SOURCE &middot; MIT &middot; PYTHON &amp; PYGAME
+  </footer>
+</main>
 
 </body>
 </html>
