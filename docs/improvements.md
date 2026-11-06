@@ -12,5 +12,5 @@
 - Security & regression review: No keys, workflows, deployment, permission, LICENSE or SECURITY changes. Persistence remains best-effort; concurrent writes and corrupt existing scores are outside this patch.
 - Risk & rollback: Low-scope persistence behavior change; revert the PR's scoring and regression-test commits if unexpected behavior occurs. Manual integration check recommended.
 - Follow-up: Run full repository pytest and browser gameplay smoke; independently reproduce settings finite-value validation issue.
-- Commit: pending
-- PR: pending
+- Commit: d927a2febf64896b5cd1bcd9b9656328db7706de (source), 27f7add22009ba928380914f853f398ac02a6111 (tests)
+- PR: https://github.com/1998x-stack/space_ship/pull/1
