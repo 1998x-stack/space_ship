@@ -27,6 +27,8 @@ class Scoring:
 
     def save_high_score(self):
         try:
+            if self.score <= self.load_high_score():
+                return
             with open(self.path, "w") as f:
                 f.write(str(self.score))
         except (OSError, ValueError):
